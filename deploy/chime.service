@@ -1,0 +1,23 @@
+[Unit]
+Description=Chime chat server (C/epoll/SQLite)
+After=network.target
+
+[Service]
+Type=simple
+User=chime
+Group=chime
+WorkingDirectory=/opt/chime
+ExecStart=/opt/chime/backend/chime-server -p 8080 -b 127.0.0.1 -d /opt/chime/data/chime.db --data /opt/chime/data
+Restart=on-failure
+RestartSec=2
+
+# hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/chime/data
+LimitNOFILE=16384
+
+[Install]
+WantedBy=multi-user.target

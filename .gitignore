@@ -1,0 +1,8 @@
+chime-server
+chime.db
+chime.db-wal
+chime.db-shm
+data/
+data-test/
+*.o
+cryptotest

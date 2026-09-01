@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build (zero warnings policy)
+        run: make
+
+      - name: Crypto self-test (RFC / NIST vectors)
+        run: |
+          gcc -O2 -Wall -Wextra -std=c11 -D_GNU_SOURCE -Isrc -Ivendor/sqlite \
+            scripts/crypto_selftest.c src/sha256.c src/util.c src/log.c \
+            -o cryptotest -pthread -lm -ldl
+          ./cryptotest
+
+      - name: End-to-end smoke suite
+        run: ./scripts/smoke.sh
+
+      - name: Static binary sanity
+        run: |
+          make static || true    # some runners lack static glibc parts; non-fatal
+          ls -la chime-server
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chime-server-linux-x64
+          path: chime-server
