@@ -25,7 +25,7 @@ trap 'kill $SRV 2>/dev/null; wait $SRV 2>/dev/null' EXIT
 # wait for health (max 5s) — fail fast with server log if it never came up
 UP=0
 for i in $(seq 1 25); do
-  if curl -s -m 1 "$B/health" 2>/dev/null | rg -q '"ok":true'; then UP=1; break; fi
+  if curl -s -m 1 "$B/health" 2>/dev/null | grep -q '"ok":true'; then UP=1; break; fi
   sleep 0.2
 done
 if [ "$UP" -ne 1 ]; then
@@ -201,7 +201,7 @@ assert_contain "$SR" '"username":"priya"' "user search"
 
 echo "[10] graceful shutdown"
 kill $SRV; wait $SRV 2>/dev/null
-if rg -q "CRASH" "$DATA/crash.log" 2>/dev/null; then bad "crash log has entries"; else ok "no crashes"; fi
+if grep -q "CRASH" "$DATA/crash.log" 2>/dev/null; then bad "crash log has entries"; else ok "no crashes"; fi
 
 echo
 echo "RESULT: $PASS passed, $FAIL failed"
